@@ -42,6 +42,27 @@ npm run build     # output in dist/
 npm run preview   # serve the production build locally
 ```
 
+## Deployment (Vercel)
+
+- **Live URL:** https://maintain-iq-frontend-one.vercel.app
+- **Project root:** `frontend` (framework preset: Vite)
+- **Config:** `vercel.json` provides the SPA catch-all rewrite
+  (`/(.*)` → `/index.html`) so client routes such as `/login` and `/dashboard`
+  load on direct navigation and refresh. Vercel checks the filesystem before
+  rewrites, so real files under `/assets` are still served as-is.
+
+Environment variable (Settings → Environment Variables, all environments used
+for the deploy, then **redeploy** — Vite inlines `VITE_*` values at build time):
+
+| Name | Value |
+| --- | --- |
+| `VITE_API_BASE_URL` | `https://maintain-iq-backend-dun.vercel.app/api` |
+
+The `/api` suffix is required because the backend registers every route under
+`/api`. Never put secrets in `VITE_*` variables — they are embedded in the
+public bundle. If the variable is missing the app falls back to `/api`, which
+only works when a dev proxy (or a reverse proxy) is present.
+
 ## Page map
 
 | Route | Role | Backend endpoints |
