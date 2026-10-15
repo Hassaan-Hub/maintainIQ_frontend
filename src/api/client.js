@@ -7,7 +7,22 @@
 // - On a non-2xx response it throws an ApiError carrying the HTTP status and
 //   the backend's "message" so callers can show it to the user.
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/+$/, "");
+// Base URL for every backend request.
+//
+// Resolution order:
+//   1. VITE_API_BASE_URL - optional per-environment override, inlined by Vite
+//      at build time. In production set it to the backend origin + "/api".
+//   2. "/api" - in development, so the Vite dev proxy forwards to the local
+//      backend and the auth cookie stays same-origin.
+//   3. The deployed backend origin - the production fallback, so a build that
+//      is missing the env var still reaches the API instead of resolving
+//      "/api/..." against the frontend's own domain (which returns 405).
+const PRODUCTION_API_BASE_URL = "https://maintain-iq-backend-dun.vercel.app/api";
+const DEFAULT_API_BASE_URL = import.meta.env.PROD ? PRODUCTION_API_BASE_URL : "/api";
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
+).replace(/\/+$/, "");
 
 export class ApiError extends Error {
   constructor(message, status, data) {
